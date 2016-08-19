@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 #include <ELClient.h>
 #include <ELClientMqtt.h>
 
@@ -8,9 +9,11 @@
 #define NO_OF_SUPPORTED_SERVICES 2
 #define NO_OF_SERVICES_INSTANTIATED 2
 
+SoftwareSerial softwareSerial(2, 3); // RX, TX
+
 // Initialize a connection to esp-link using the normal hardware serial port both for
 // SLIP and for debug messages.
-ELClient esp(&Serial, &Serial);
+ELClient esp(&softwareSerial, &Serial);
 // Initialize the MQTT client
 ELClientMqtt mqtt(&esp);
 
@@ -22,12 +25,13 @@ DeviceService deviceService(
 );
 
 void wifiCb(void* response) {
-  Serial.println("Wifi Connected");
+  Serial.println("Wifi: Connected");
 }
 
 void mqttConnected(void* response)
 {
-  Serial.println("Connected");
+  Serial.println("MQTT: Connected");
+  Serial.println("MQTT: Subscribing to /device/my-device-id/cmd");
   mqtt.subscribe("/device/my-device-id/cmd");
 
   ResponsePacket *responsePacket = deviceService.supportedServicesResponsePacket();
@@ -53,7 +57,8 @@ int digitalWriteCallback(int portNumber, int level){
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
+  softwareSerial.begin(9600);
 
   // Sync-up with esp-link, this is required at the start of any sketch and initializes the
   // callbacks to the wifi status change callback. The callback gets called with the initial
