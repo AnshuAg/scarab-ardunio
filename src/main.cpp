@@ -46,7 +46,7 @@ void mqttData(void* response)
   String topic = res->popString();
   String data = res->popString();
 
-  deviceService.process(Packet::parseWrite(data.c_str()));
+  deviceService.process(Packet::parseWrite((byte *)data.c_str()));
 }
 
 void mqttPublished(void* response){}
